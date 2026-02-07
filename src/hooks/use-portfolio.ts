@@ -15,7 +15,6 @@ import {
   orderBy 
 } from 'firebase/firestore';
 import { Profile, Post, BlogPost } from '@/lib/types';
-import { INITIAL_DATA } from '@/lib/mock-data';
 import { 
   setDocumentNonBlocking, 
   addDocumentNonBlocking, 
@@ -39,7 +38,7 @@ export function useProfile() {
   };
 
   return { 
-    profile: profile || INITIAL_DATA.profile, 
+    profile, // Retorna null se não houver dados ou estiver carregando
     isLoading,
     updateProfile 
   };
