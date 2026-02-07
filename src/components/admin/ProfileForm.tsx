@@ -1,5 +1,7 @@
 
-import { useState } from 'react';
+"use client";
+
+import { useState, useRef } from 'react';
 import { Profile } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,8 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { X, Plus, Save } from 'lucide-react';
+import { X, Plus, Save, Upload, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import Image from 'next/image';
 
 interface ProfileFormProps {
   profile: Profile;
@@ -18,15 +21,36 @@ interface ProfileFormProps {
 export function ProfileForm({ profile, onSave }: ProfileFormProps) {
   const [formData, setFormData] = useState<Profile>(profile);
   const [newSkill, setNewSkill] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
     toast({
-      title: "Profile Updated",
-      description: "Your changes have been saved successfully.",
+      title: "Perfil Atualizado",
+      description: "Suas alterações foram salvas com sucesso.",
     });
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast({
+          title: "Arquivo muito grande",
+          description: "Por favor, escolha uma imagem com menos de 2MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, avatarUrl: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const addSkill = () => {
@@ -50,37 +74,71 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
     <form onSubmit={handleSave} className="space-y-8">
       <Card className="shadow-md">
         <CardHeader>
-          <CardTitle className="font-headline">Personal Details</CardTitle>
+          <CardTitle className="font-headline">Detalhes Pessoais</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="name">Display Name</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Your professional name"
-              required
-            />
+          <div className="flex flex-col items-center sm:flex-row gap-8 mb-4">
+            <div className="relative group">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-muted bg-muted flex items-center justify-center relative">
+                {formData.avatarUrl ? (
+                  <Image 
+                    src={formData.avatarUrl} 
+                    alt="Preview" 
+                    fill 
+                    className="object-cover"
+                  />
+                ) : (
+                  <User className="w-12 h-12 text-muted-foreground" />
+                )}
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                >
+                  <Upload className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageUpload}
+              />
+              <p className="text-[10px] text-muted-foreground mt-2 text-center uppercase font-bold tracking-wider">Clique para mudar</p>
+            </div>
+
+            <div className="flex-grow space-y-4 w-full">
+              <div className="space-y-2">
+                <Label htmlFor="name">Nome de Exibição</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Seu nome profissional"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="avatarUrl">URL da Imagem (ou use o upload ao lado)</Label>
+                <Input
+                  id="avatarUrl"
+                  value={formData.avatarUrl?.startsWith('data:') ? '' : formData.avatarUrl}
+                  onChange={(e) => setFormData({ ...formData, avatarUrl: e.target.value })}
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="bio">Bio / Statement</Label>
+            <Label htmlFor="bio">Bio / Statement Profissional</Label>
             <Textarea
               id="bio"
               value={formData.bio}
               onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              placeholder="Tell the world about your creative vision..."
+              placeholder="Conte ao mundo sobre sua visão criativa e stack tecnológica..."
               className="min-h-[120px]"
               required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="avatarUrl">Avatar URL</Label>
-            <Input
-              id="avatarUrl"
-              value={formData.avatarUrl}
-              onChange={(e) => setFormData({ ...formData, avatarUrl: e.target.value })}
-              placeholder="https://..."
             />
           </div>
         </CardContent>
@@ -88,14 +146,14 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
 
       <Card className="shadow-md">
         <CardHeader>
-          <CardTitle className="font-headline">Skills & Specializations</CardTitle>
+          <CardTitle className="font-headline">Habilidades & Especializações</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex gap-2">
             <Input
               value={newSkill}
               onChange={(e) => setNewSkill(e.target.value)}
-              placeholder="Add a skill (e.g. Watercolor)"
+              placeholder="Adicione uma tech (ex: React, Docker)"
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
             />
             <Button type="button" onClick={addSkill} variant="secondary">
@@ -121,11 +179,11 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
 
       <Card className="shadow-md">
         <CardHeader>
-          <CardTitle className="font-headline">Contact Information</CardTitle>
+          <CardTitle className="font-headline">Informações de Contato</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email de Contato</Label>
             <Input
               id="email"
               type="email"
@@ -138,7 +196,7 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="website">Website (optional)</Label>
+            <Label htmlFor="website">Website / Portfólio (opcional)</Label>
             <Input
               id="website"
               value={formData.contact.website}
@@ -146,11 +204,11 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
                 ...formData,
                 contact: { ...formData.contact, website: e.target.value }
               })}
-              placeholder="www.yoursite.com"
+              placeholder="www.seusite.com"
             />
           </div>
           <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="linkedin">LinkedIn Profile (optional)</Label>
+            <Label htmlFor="linkedin">Perfil LinkedIn (opcional)</Label>
             <Input
               id="linkedin"
               value={formData.contact.linkedin}
@@ -158,14 +216,14 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
                 ...formData,
                 contact: { ...formData.contact, linkedin: e.target.value }
               })}
-              placeholder="linkedin.com/in/username"
+              placeholder="linkedin.com/in/usuario"
             />
           </div>
         </CardContent>
         <CardFooter className="bg-muted/30 pt-6">
           <Button type="submit" className="w-full sm:w-auto ml-auto flex items-center gap-2">
             <Save className="w-4 h-4" />
-            Save Profile
+            Salvar Perfil Dev
           </Button>
         </CardFooter>
       </Card>
