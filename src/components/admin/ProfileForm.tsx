@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Profile } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,22 +14,42 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
 interface ProfileFormProps {
-  profile: Profile;
+  profile: Profile | null;
   onSave: (profile: Profile) => void;
 }
 
+const DEFAULT_PROFILE: Profile = {
+  id: 'main-dev',
+  name: '',
+  bio: '',
+  skills: [],
+  contact: {
+    email: '',
+    linkedin: '',
+    website: ''
+  },
+  avatarUrl: ''
+};
+
 export function ProfileForm({ profile, onSave }: ProfileFormProps) {
-  const [formData, setFormData] = useState<Profile>(profile);
+  const [formData, setFormData] = useState<Profile>(profile || DEFAULT_PROFILE);
   const [newSkill, setNewSkill] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Atualiza o estado interno se o perfil carregar depois
+  useEffect(() => {
+    if (profile) {
+      setFormData(profile);
+    }
+  }, [profile]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
     toast({
       title: "Perfil Atualizado",
-      description: "Suas alterações foram salvas com sucesso.",
+      description: "Suas alterações foram salvas com sucesso no banco de dados.",
     });
   };
 
@@ -119,7 +139,7 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="avatarUrl">URL da Imagem (ou use o upload ao lado)</Label>
+                <Label htmlFor="avatarUrl">URL da Imagem (opcional)</Label>
                 <Input
                   id="avatarUrl"
                   value={formData.avatarUrl?.startsWith('data:') ? '' : formData.avatarUrl}
