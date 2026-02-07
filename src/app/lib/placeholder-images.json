@@ -3,27 +3,27 @@
   "placeholderImages": [
     {
       "id": "hero-bg",
-      "description": "A creative workspace with artistic tools",
-      "imageUrl": "https://picsum.photos/seed/art-1/1200/600",
-      "imageHint": "creative art workspace"
+      "description": "Um workspace moderno de desenvolvedor com múltiplos monitores",
+      "imageUrl": "https://picsum.photos/seed/dev-workspace/1200/600",
+      "imageHint": "coding workspace"
     },
     {
-      "id": "post-1",
-      "description": "Abstract oil painting",
-      "imageUrl": "https://picsum.photos/seed/art-2/800/600",
-      "imageHint": "abstract painting"
+      "id": "project-1",
+      "description": "Dashboard de sistema web moderno",
+      "imageUrl": "https://picsum.photos/seed/project-dash/800/600",
+      "imageHint": "web dashboard"
     },
     {
-      "id": "post-2",
-      "description": "Minimalist digital illustration",
-      "imageUrl": "https://picsum.photos/seed/art-3/800/600",
-      "imageHint": "digital illustration"
+      "id": "project-2",
+      "description": "Screenshot de aplicativo mobile",
+      "imageUrl": "https://picsum.photos/seed/mobile-app/800/600",
+      "imageHint": "mobile app"
     },
     {
-      "id": "post-3",
-      "description": "Urban architectural sketch",
-      "imageUrl": "https://picsum.photos/seed/art-4/800/600",
-      "imageHint": "architectural sketch"
+      "id": "project-3",
+      "description": "Visualização de código em um editor",
+      "imageUrl": "https://picsum.photos/seed/code-view/800/600",
+      "imageHint": "programming code"
     }
   ]
 }

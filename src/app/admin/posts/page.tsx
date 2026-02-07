@@ -7,7 +7,7 @@ import { Navigation } from '@/components/portfolio/Navigation';
 import { PostForm } from '@/components/admin/PostForm';
 import { Post } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, LayoutGrid } from 'lucide-react';
+import { Plus, Pencil, Trash2, FolderCode } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Image from 'next/image';
@@ -30,11 +30,11 @@ export default function AdminPostsPage() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this post?")) {
+    if (confirm("Tem certeza que deseja excluir este projeto?")) {
       deletePost(id);
       toast({
-        title: "Post Deleted",
-        description: "The post was removed from your portfolio.",
+        title: "Projeto Excluído",
+        description: "O projeto foi removido do seu portfólio.",
       });
     }
   };
@@ -48,7 +48,7 @@ export default function AdminPostsPage() {
     } else {
       addPost({
         ...postData,
-        id: `post-${Date.now()}`,
+        id: `project-${Date.now()}`,
         createdAt: new Date().toISOString(),
       });
     }
@@ -61,22 +61,22 @@ export default function AdminPostsPage() {
       <main className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-headline text-4xl font-bold">Manage Posts</h1>
-            <p className="text-muted-foreground mt-2">Create and organize your portfolio works.</p>
+            <h1 className="font-headline text-4xl font-bold">Gerenciar Projetos</h1>
+            <p className="text-muted-foreground mt-2">Adicione e organize suas aplicações e sistemas.</p>
           </div>
           <Button onClick={handleAddNew} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
-            New Post
+            Novo Projeto
           </Button>
         </div>
 
         {data.posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 bg-card rounded-2xl border-2 border-dashed">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-              <LayoutGrid className="w-8 h-8 text-muted-foreground" />
+              <FolderCode className="w-8 h-8 text-muted-foreground" />
             </div>
-            <p className="text-muted-foreground text-lg">Your portfolio is empty.</p>
-            <Button variant="link" onClick={handleAddNew}>Click here to add your first work</Button>
+            <p className="text-muted-foreground text-lg">Seu portfólio de projetos está vazio.</p>
+            <Button variant="link" onClick={handleAddNew}>Clique aqui para adicionar seu primeiro trabalho</Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -107,7 +107,7 @@ export default function AdminPostsPage() {
                       </span>
                     ))}
                     {post.tags.length > 3 && (
-                      <span className="text-[10px] text-muted-foreground">+{post.tags.length - 3} more</span>
+                      <span className="text-[10px] text-muted-foreground">+{post.tags.length - 3} mais</span>
                     )}
                   </div>
                 </CardContent>
@@ -120,10 +120,10 @@ export default function AdminPostsPage() {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-headline text-2xl">
-                {editingPost ? 'Edit Post' : 'Create New Post'}
+                {editingPost ? 'Editar Projeto' : 'Adicionar Novo Projeto'}
               </DialogTitle>
               <DialogDescription>
-                Fill in the details for your portfolio entry.
+                Preencha os detalhes da sua aplicação ou sistema.
               </DialogDescription>
             </DialogHeader>
             <PostForm

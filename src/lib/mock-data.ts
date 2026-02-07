@@ -4,31 +4,31 @@ import { PortfolioData } from './types';
 export const INITIAL_DATA: PortfolioData = {
   profile: {
     id: 'user-1',
-    name: 'Elena Vance',
-    bio: 'Multi-disciplinary artist specializing in digital painting and urban architectural sketches. I find beauty in the intersection of organic forms and geometric structures.',
-    skills: ['Digital Painting', 'Oil Painting', 'Architectural Sketching', 'Minimalist Illustration'],
+    name: 'Alex Tech',
+    bio: 'Desenvolvedor Full-stack sênior apaixonado por criar soluções escaláveis com Next.js, Firebase e Cloud Architecture. Especialista em transformar ideias em produtos digitais de alta performance.',
+    skills: ['React/Next.js', 'Node.js', 'TypeScript', 'Cloud Computing', 'Firebase', 'Mobile Development'],
     contact: {
-      email: 'elena@artfolio.com',
-      website: 'www.elenavance.art',
-      linkedin: 'linkedin.com/in/elenavance'
+      email: 'alex.dev@exemplo.com',
+      website: 'www.alex-dev.tech',
+      linkedin: 'linkedin.com/in/alexdev'
     },
-    avatarUrl: 'https://picsum.photos/seed/elena/200/200'
+    avatarUrl: 'https://picsum.photos/seed/dev-avatar/200/200'
   },
   posts: [
     {
       id: 'post-1',
-      title: 'Ethereal Horizons',
-      description: 'An exploration of color and light in an abstract oil landscape.',
-      imageUrl: 'https://picsum.photos/seed/art-2/800/600',
-      tags: ['Abstract', 'Oil', 'Landscape'],
+      title: 'Plataforma E-commerce SaaS',
+      description: 'Uma solução completa de comércio eletrônico com multi-tenancy, integração de pagamentos e painel administrativo em tempo real.',
+      imageUrl: 'https://picsum.photos/seed/web-project-1/800/600',
+      tags: ['Next.js', 'Stripe', 'Tailwind', 'PostgreSQL'],
       createdAt: new Date().toISOString()
     },
     {
       id: 'post-2',
-      title: 'Modern Solitude',
-      description: 'Digital illustration reflecting on contemporary urban living.',
-      imageUrl: 'https://picsum.photos/seed/art-3/800/600',
-      tags: ['Digital', 'Minimalist', 'Urban'],
+      title: 'App de Gestão Financeira',
+      description: 'Aplicativo mobile cross-platform focado em UX, com gráficos complexos e sincronização offline de dados.',
+      imageUrl: 'https://picsum.photos/seed/app-project-1/800/600',
+      tags: ['React Native', 'Firebase', 'Recharts', 'TypeScript'],
       createdAt: new Date().toISOString()
     }
   ]

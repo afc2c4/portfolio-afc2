@@ -33,7 +33,7 @@ export default function HomePage() {
             <ProfileHeader profile={data.profile} />
             <div className="mt-16">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="font-headline text-3xl font-bold">Recent Works</h2>
+                <h2 className="font-headline text-3xl font-bold">Projetos em Destaque</h2>
                 <div className="h-px bg-border flex-grow ml-8" />
               </div>
               <PostGrid posts={data.posts} />
@@ -44,7 +44,7 @@ export default function HomePage() {
 
       <footer className="border-t py-12 bg-muted/30">
         <div className="container mx-auto px-4 text-center text-muted-foreground text-sm">
-          <p>© {new Date().getFullYear()} ArtFolio. Crafted for creativity.</p>
+          <p>© {new Date().getFullYear()} DevFolio. Showcase para Desenvolvedores de Elite.</p>
         </div>
       </footer>
     </div>

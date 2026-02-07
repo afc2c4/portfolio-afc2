@@ -43,8 +43,8 @@ export function PostForm({ initialData, onSave, onCancel }: PostFormProps) {
   const handleSuggestTags = async () => {
     if (!imageUrl || !imageUrl.startsWith('data:')) {
       toast({
-        title: "Image required",
-        description: "Please upload an image first to generate tags.",
+        title: "Screenshot necessária",
+        description: "Faça upload de uma imagem do projeto para sugerir stacks.",
         variant: "destructive"
       });
       return;
@@ -53,18 +53,17 @@ export function PostForm({ initialData, onSave, onCancel }: PostFormProps) {
     setIsGeneratingTags(true);
     try {
       const result = await generateTagsForPost({ imageDataUri: imageUrl });
-      // Merge with existing tags, avoiding duplicates
       const uniqueTags = Array.from(new Set([...tags, ...result.tags]));
       setTags(uniqueTags);
       toast({
-        title: "Tags Generated",
-        description: `Added ${result.tags.length} new tags based on your image.`,
+        title: "Tecnologias Identificadas",
+        description: `Adicionadas ${result.tags.length} novas tags baseadas na interface.`,
       });
     } catch (error) {
       console.error("Failed to generate tags", error);
       toast({
-        title: "GenAI Error",
-        description: "Failed to suggest tags for this image.",
+        title: "Erro de IA",
+        description: "Não foi possível sugerir tecnologias para este projeto.",
         variant: "destructive"
       });
     } finally {
@@ -87,8 +86,8 @@ export function PostForm({ initialData, onSave, onCancel }: PostFormProps) {
     e.preventDefault();
     if (!imageUrl) {
       toast({
-        title: "Incomplete",
-        description: "Please provide an image for the post.",
+        title: "Incompleto",
+        description: "Por favor, adicione uma imagem do projeto.",
         variant: "destructive"
       });
       return;
@@ -99,37 +98,37 @@ export function PostForm({ initialData, onSave, onCancel }: PostFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 py-4">
       <div className="space-y-2">
-        <Label htmlFor="title">Title</Label>
+        <Label htmlFor="title">Nome do Projeto</Label>
         <Input
           id="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Give your work a name"
+          placeholder="Ex: Sistema de Gestão Escolar"
           required
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">Descrição Técnica / Resumo</Label>
         <Textarea
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe your creative process..."
+          placeholder="Descreva o problema resolvido e as tecnologias principais..."
           className="min-h-[100px]"
           required
         />
       </div>
 
       <div className="space-y-2">
-        <Label>Work Image</Label>
+        <Label>Screenshot / Capa do Projeto</Label>
         <div className="flex flex-col gap-4">
           {imageUrl ? (
             <div className="relative aspect-video rounded-lg overflow-hidden border-2 border-muted group">
               <Image src={imageUrl} alt="Preview" fill className="object-cover" />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <Button type="button" variant="secondary" onClick={() => setImageUrl('')}>
-                  Remove Image
+                  Remover Imagem
                 </Button>
               </div>
             </div>
@@ -139,7 +138,7 @@ export function PostForm({ initialData, onSave, onCancel }: PostFormProps) {
               className="aspect-video rounded-lg border-2 border-dashed border-muted hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-2"
             >
               <Upload className="w-8 h-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground font-medium">Click to upload an image</p>
+              <p className="text-sm text-muted-foreground font-medium">Clique para subir um screenshot</p>
               <Input
                 ref={fileInputRef}
                 type="file"
@@ -150,7 +149,7 @@ export function PostForm({ initialData, onSave, onCancel }: PostFormProps) {
             </div>
           )}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Or provide a URL:</span>
+            <span className="text-xs text-muted-foreground">Ou URL direta:</span>
             <Input
               value={imageUrl.startsWith('data:') ? '' : imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
@@ -163,7 +162,7 @@ export function PostForm({ initialData, onSave, onCancel }: PostFormProps) {
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label>Categories & Tags</Label>
+          <Label>Tech Stack & Tags</Label>
           <Button
             type="button"
             variant="ghost"
@@ -177,14 +176,14 @@ export function PostForm({ initialData, onSave, onCancel }: PostFormProps) {
             ) : (
               <Sparkles className="w-3 h-3" />
             )}
-            Suggest with AI
+            Sugerir Stack com IA
           </Button>
         </div>
         <div className="flex gap-2">
           <Input
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            placeholder="Add a tag"
+            placeholder="Ex: Next.js"
             className="h-9"
             onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
           />
@@ -206,17 +205,17 @@ export function PostForm({ initialData, onSave, onCancel }: PostFormProps) {
             </Badge>
           ))}
           {tags.length === 0 && (
-            <span className="text-sm text-muted-foreground italic">No tags added yet.</span>
+            <span className="text-sm text-muted-foreground italic">Nenhuma tag adicionada.</span>
           )}
         </div>
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t">
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Cancel
+          Cancelar
         </Button>
         <Button type="submit">
-          {initialData ? 'Update Post' : 'Create Post'}
+          {initialData ? 'Atualizar Projeto' : 'Salvar Projeto'}
         </Button>
       </div>
     </form>

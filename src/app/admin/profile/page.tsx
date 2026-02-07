@@ -14,8 +14,8 @@ export default function AdminProfilePage() {
       <Navigation />
       <main className="container mx-auto px-4 py-12 max-w-4xl">
         <div className="mb-8">
-          <h1 className="font-headline text-4xl font-bold">Edit Profile</h1>
-          <p className="text-muted-foreground mt-2">Update your personal information and artistic identity.</p>
+          <h1 className="font-headline text-4xl font-bold">Configurar Perfil Dev</h1>
+          <p className="text-muted-foreground mt-2">Atualize suas informações profissionais e stack tecnológica.</p>
         </div>
 
         {!isLoaded ? (

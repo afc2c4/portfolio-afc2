@@ -4,15 +4,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutGrid, User, Settings, Palette } from 'lucide-react';
+import { LayoutGrid, User, Settings, CodeXml } from 'lucide-react';
 
 export function Navigation() {
   const pathname = usePathname();
 
   const links = [
-    { href: '/', label: 'Portfolio', icon: LayoutGrid },
-    { href: '/admin/profile', label: 'Profile', icon: User },
-    { href: '/admin/posts', label: 'Manage Posts', icon: Settings },
+    { href: '/', label: 'Portfólio', icon: LayoutGrid },
+    { href: '/admin/profile', label: 'Perfil', icon: User },
+    { href: '/admin/posts', label: 'Gerenciar Projetos', icon: Settings },
   ];
 
   return (
@@ -20,9 +20,9 @@ export function Navigation() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground group-hover:rotate-12 transition-transform">
-            <Palette className="w-5 h-5" />
+            <CodeXml className="w-5 h-5" />
           </div>
-          <span className="font-headline text-xl font-bold tracking-tight">ArtFolio</span>
+          <span className="font-headline text-xl font-bold tracking-tight">DevFolio</span>
         </Link>
 
         <div className="flex items-center gap-1 sm:gap-4">
