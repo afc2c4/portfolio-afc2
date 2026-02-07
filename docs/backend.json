@@ -50,14 +50,14 @@
         "content": { "type": "string" },
         "coverUrl": { "type": "string", "format": "uri" },
         "tags": { "type": "array", "items": { "type": "string" } },
-        "published": { "type": "boolean" },
+        "published": { "boolean": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "title", "content", "published"]
     }
   },
   "auth": {
-    "providers": ["password", "google"]
+    "providers": ["password"]
   },
   "firestore": {
     "/users/{userId}/userProfile": {
