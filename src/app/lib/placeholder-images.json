@@ -1,0 +1,29 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-bg",
+      "description": "A creative workspace with artistic tools",
+      "imageUrl": "https://picsum.photos/seed/art-1/1200/600",
+      "imageHint": "creative art workspace"
+    },
+    {
+      "id": "post-1",
+      "description": "Abstract oil painting",
+      "imageUrl": "https://picsum.photos/seed/art-2/800/600",
+      "imageHint": "abstract painting"
+    },
+    {
+      "id": "post-2",
+      "description": "Minimalist digital illustration",
+      "imageUrl": "https://picsum.photos/seed/art-3/800/600",
+      "imageHint": "digital illustration"
+    },
+    {
+      "id": "post-3",
+      "description": "Urban architectural sketch",
+      "imageUrl": "https://picsum.photos/seed/art-4/800/600",
+      "imageHint": "architectural sketch"
+    }
+  ]
+}
