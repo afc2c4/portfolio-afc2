@@ -50,14 +50,15 @@
         "content": { "type": "string" },
         "coverUrl": { "type": "string", "format": "uri" },
         "tags": { "type": "array", "items": { "type": "string" } },
-        "published": { "boolean": "boolean" },
+        "published": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "title", "content", "published"]
     }
   },
   "auth": {
-    "providers": ["password"]
+    "providers": ["password"],
+    "restrictedTo": "afc2c4@gmail.com"
   },
   "firestore": {
     "/users/{userId}/userProfile": {
