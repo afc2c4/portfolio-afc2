@@ -1,72 +1,104 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
-import { PortfolioData, Profile, Post, BlogPost } from '@/lib/types';
+import { useMemo } from 'react';
+import { 
+  useFirestore, 
+  useUser, 
+  useCollection, 
+  useDoc, 
+  useMemoFirebase 
+} from '@/firebase';
+import { 
+  collection, 
+  doc, 
+  setDoc, 
+  addDoc, 
+  deleteDoc, 
+  updateDoc, 
+  query, 
+  orderBy, 
+  limit 
+} from 'firebase/firestore';
+import { Profile, Post, BlogPost, PortfolioData } from '@/lib/types';
 import { INITIAL_DATA } from '@/lib/mock-data';
+import { setDocumentNonBlocking, addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
-const STORAGE_KEY = 'devfolio_data_v2';
+// UID fixo para o portfólio (conforme definido nas security rules)
+const OWNER_ID = 'main-dev';
 
 export function usePortfolio() {
-  const [data, setData] = useState<PortfolioData>(INITIAL_DATA);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const firestore = useFirestore();
+  const { user } = useUser();
 
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setData(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse stored data", e);
-      }
-    }
-    setIsLoaded(true);
-  }, []);
+  // Referências Memoizadas
+  const profileRef = useMemoFirebase(() => 
+    doc(firestore, 'users', OWNER_ID, 'userProfile', 'current'), 
+    [firestore]
+  );
+  
+  const projectsQuery = useMemoFirebase(() => 
+    query(collection(firestore, 'users', OWNER_ID, 'projects'), orderBy('createdAt', 'desc')), 
+    [firestore]
+  );
 
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
-  }, [data, isLoaded]);
+  const blogPostsQuery = useMemoFirebase(() => 
+    query(collection(firestore, 'users', OWNER_ID, 'blogPosts'), orderBy('createdAt', 'desc')), 
+    [firestore]
+  );
 
+  // Hooks de Dados do Firebase
+  const { data: profileData, isLoading: isProfileLoading } = useDoc<Profile>(profileRef);
+  const { data: projectsData, isLoading: isProjectsLoading } = useCollection<Post>(projectsQuery);
+  const { data: blogPostsData, isLoading: isBlogLoading } = useCollection<BlogPost>(blogPostsQuery);
+
+  const isLoaded = !isProfileLoading && !isProjectsLoading && !isBlogLoading;
+
+  // Funções de Mutação (Usando Non-Blocking Updates para melhor UX)
   const updateProfile = (profile: Profile) => {
-    setData(prev => ({ ...prev, profile }));
+    setDocumentNonBlocking(profileRef, profile, { merge: true });
   };
 
-  const addPost = (post: Post) => {
-    setData(prev => ({ ...prev, posts: [post, ...prev.posts] }));
+  const addPost = (post: Omit<Post, 'id' | 'createdAt'>) => {
+    const colRef = collection(firestore, 'users', OWNER_ID, 'projects');
+    addDocumentNonBlocking(colRef, {
+      ...post,
+      createdAt: new Date().toISOString()
+    });
   };
 
   const updatePost = (updatedPost: Post) => {
-    setData(prev => ({
-      ...prev,
-      posts: prev.posts.map(p => p.id === updatedPost.id ? updatedPost : p)
-    }));
+    const docRef = doc(firestore, 'users', OWNER_ID, 'projects', updatedPost.id);
+    updateDocumentNonBlocking(docRef, updatedPost);
   };
 
   const deletePost = (postId: string) => {
-    setData(prev => ({
-      ...prev,
-      posts: prev.posts.filter(p => p.id !== postId)
-    }));
+    const docRef = doc(firestore, 'users', OWNER_ID, 'projects', postId);
+    deleteDocumentNonBlocking(docRef);
   };
 
-  const addBlogPost = (blogPost: BlogPost) => {
-    setData(prev => ({ ...prev, blogPosts: [blogPost, ...prev.blogPosts] }));
+  const addBlogPost = (blogPost: Omit<BlogPost, 'id' | 'createdAt'>) => {
+    const colRef = collection(firestore, 'users', OWNER_ID, 'blogPosts');
+    addDocumentNonBlocking(colRef, {
+      ...blogPost,
+      createdAt: new Date().toISOString()
+    });
   };
 
   const updateBlogPost = (updatedBlogPost: BlogPost) => {
-    setData(prev => ({
-      ...prev,
-      blogPosts: prev.blogPosts.map(p => p.id === updatedBlogPost.id ? updatedBlogPost : p)
-    }));
+    const docRef = doc(firestore, 'users', OWNER_ID, 'blogPosts', updatedBlogPost.id);
+    updateDocumentNonBlocking(docRef, updatedBlogPost);
   };
 
   const deleteBlogPost = (blogPostId: string) => {
-    setData(prev => ({
-      ...prev,
-      blogPosts: prev.blogPosts.filter(p => p.id !== blogPostId)
-    }));
+    const docRef = doc(firestore, 'users', OWNER_ID, 'blogPosts', blogPostId);
+    deleteDocumentNonBlocking(docRef);
+  };
+
+  const data: PortfolioData = {
+    profile: profileData || INITIAL_DATA.profile,
+    posts: projectsData || [],
+    blogPosts: blogPostsData || []
   };
 
   return {
