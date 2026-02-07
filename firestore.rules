@@ -1,0 +1,89 @@
+rules_version = '2';
+
+/**
+ * ArtFolio Security Rules
+ * 
+ * Core Philosophy:
+ * This ruleset implements a strict path-based ownership model for user-specific data, 
+ * ensuring that profiles and portfolio content are private to the respective artist. 
+ * Global metadata (Tags) is accessible to all authenticated users but protected from modification.
+ * 
+ * Data Structure:
+ * - /users/{userId}/userProfile: Private artist profiles.
+ * - /users/{userId}/posts/{postId}: Private portfolio posts owned by the user.
+ * - /tags/{tagId}: Global library of categories for work classification.
+ * 
+ * Key Security Decisions:
+ * - Ownership Enforcement: All user-scoped collections (/users/{userId}/...) strictly 
+ *   compare the {userId} path parameter against the request.auth.uid.
+ * - Relational Integrity: On creation, documents must contain an internal field 
+ *   (e.g., userProfileId) that matches the parent path's userId to prevent cross-account injection.
+ * - Immutability: Critical relational fields are locked during updates to prevent users 
+ *   from "re-parenting" or moving documents between accounts.
+ * - Prototyping Flexibility: While authorization is strictly enforced, data schema 
+ *   and types are not validated, allowing for rapid front-end iteration.
+ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- HELPER FUNCTIONS ---
+
+    /** @description Checks if the user is authenticated with a valid UID. */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /** @description Checks if the authenticated user matches the provided userId. */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /** @description Verifies ownership and ensures the document exists for state-changing operations. */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Rules for the UserProfile entity. Restricted to the owner.
+     * @path /users/{userId}/userProfile
+     * @allow Authenticated user "abc" (create) a document at /users/abc/userProfile.
+     * @deny Authenticated user "abc" (get) a document at /users/xyz/userProfile.
+     * @principle Restricts access to a user's own data tree and validates path consistency.
+     */
+    match /users/{userId}/userProfile {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for portfolio Posts. Owned by the artist defined in the path.
+     * @path /users/{userId}/posts/{postId}
+     * @allow User "user1" (list) all documents in /users/user1/posts.
+     * @deny User "user1" (update) a document in /users/user2/posts.
+     * @principle Enforces document ownership for writes and secures user-specific subcollections.
+     */
+    match /users/{userId}/posts/{postId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userProfileId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Rules for global Tags. Readable by any signed-in user, but system-managed.
+     * @path /tags/{tagId}
+     * @allow Any authenticated user (get) a specific tag.
+     * @deny Any user (create, update, delete) a tag document via the client SDK.
+     * @principle Grants public read access while preventing unauthorized modification of global resources.
+     */
+    match /tags/{tagId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if false;
+    }
+  }
+}

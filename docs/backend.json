@@ -1,0 +1,177 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile in the ArtFolio application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user profile."
+        },
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "bio": {
+          "type": "string",
+          "description": "User's biographical information or artist statement."
+        },
+        "skills": {
+          "type": "array",
+          "description": "List of skills or areas of expertise.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "contactInformation": {
+          "type": "string",
+          "description": "User's contact details (e.g., website, phone number)."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email"
+      ]
+    },
+    "Post": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Post",
+      "type": "object",
+      "description": "Represents a portfolio post showcasing a user's work.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the portfolio post."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Post)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the post."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the post."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the image associated with the post.",
+          "format": "uri"
+        },
+        "tagIds": {
+          "type": "array",
+          "description": "References to Tags. (Relationship: Tag N:N Post)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date and time when the post was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "title",
+        "description",
+        "imageUrl",
+        "createdAt"
+      ]
+    },
+    "Tag": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Tag",
+      "type": "object",
+      "description": "Represents a category or tag that can be assigned to portfolio posts.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the tag."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the tag (e.g., 'Painting', 'Sculpture')."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/userProfile",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile data.  Accessible only by the user with the matching userId. Uses path-based ownership for enhanced security.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/posts/{postId}",
+        "definition": {
+          "entityName": "Post",
+          "schema": {
+            "$ref": "#/backend/entities/Post"
+          },
+          "description": "Stores posts created by a specific user. Accessible only by the user with the matching userId.  Uses path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "postId",
+              "description": "The unique identifier of the post."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/tags/{tagId}",
+        "definition": {
+          "entityName": "Tag",
+          "schema": {
+            "$ref": "#/backend/entities/Tag"
+          },
+          "description": "Stores global tags that can be associated with posts. No specific ownership; any authenticated user can read tags.",
+          "params": [
+            {
+              "name": "tagId",
+              "description": "The unique identifier of the tag."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to prioritize security, scalability, and ease of debugging, adhering to the core design principles and strategy mandates outlined. Authorization Independence is achieved through denormalization, specifically for collaborative data (if applicable). The structure facilitates secure `list` operations (QAPs) by segregating data with different access requirements into separate collections and leveraging membership maps when needed.\n\nUser profiles are stored in a private collection `/users/{userId}/userProfile`. Posts are stored in `/users/{userId}/posts/{postId}` to leverage path-based ownership. Tags are stored in a global `/tags` collection. No custom claims are used (DBAC), relying solely on `request.auth.uid` for authorization.\n\nThis design avoids hierarchical authorization dependencies, simplifies security rules, and ensures data clarity and predictability."
+  }
+}
