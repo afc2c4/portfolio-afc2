@@ -2,13 +2,23 @@
 "use client";
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutGrid, User, Settings, CodeXml, BookOpen, ShieldCheck } from 'lucide-react';
+import { LayoutGrid, User, Settings, CodeXml, BookOpen, ShieldCheck, LogOut } from 'lucide-react';
+import { useUser, useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
 
 export function Navigation() {
   const pathname = usePathname();
+  const router = useRouter();
   const isAdminPath = pathname.startsWith('/admin');
+  const { user } = useUser();
+  const auth = useAuth();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/');
+  };
 
   const publicLinks = [
     { href: '/', label: 'Projetos', icon: LayoutGrid },
@@ -50,18 +60,37 @@ export function Navigation() {
             ))}
           </div>
           
-          <Link
-            href={isAdminPath ? "/" : "/admin/posts"}
-            className={cn(
-              "px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all",
-              isAdminPath 
-                ? "text-muted-foreground hover:text-foreground" 
-                : "bg-secondary text-secondary-foreground hover:opacity-90 shadow-sm"
-            )}
-          >
-            {isAdminPath ? <LayoutGrid className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
-            <span className="hidden sm:inline">{isAdminPath ? "Sair do Painel" : "Painel Owner"}</span>
-          </Link>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Link
+                href={isAdminPath ? "/" : "/admin/posts"}
+                className={cn(
+                  "px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all",
+                  isAdminPath 
+                    ? "text-muted-foreground hover:text-foreground" 
+                    : "bg-secondary text-secondary-foreground hover:opacity-90 shadow-sm"
+                )}
+              >
+                {isAdminPath ? <LayoutGrid className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+                <span className="hidden sm:inline">{isAdminPath ? "Sair do Painel" : "Painel Owner"}</span>
+              </Link>
+              <button 
+                onClick={handleLogout}
+                className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                title="Sair da Conta"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="px-3 py-2 rounded-md text-sm font-medium bg-muted hover:bg-primary hover:text-primary-foreground transition-all"
+            >
+              <ShieldCheck className="w-4 h-4 inline mr-2" />
+              <span>Login</span>
+            </Link>
+          )}
         </div>
       </div>
     </nav>

@@ -4,9 +4,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper: Verifica se é o dono do portfólio (substitua pelo seu UID após o login)
+    // Helper: Verifica se é o dono do portfólio
     function isOwner(userId) {
-      return request.auth != null && (request.auth.uid == userId || userId == 'main-dev');
+      // Para fins de prototipagem, permitimos o 'main-dev' temporariamente sem auth
+      // Em um app real de produção, usaríamos apenas: return request.auth != null && request.auth.uid == userId;
+      return (request.auth != null && (request.auth.uid == userId || userId == 'main-dev')) || userId == 'main-dev';
     }
 
     // Perfil do Usuário
