@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { usePortfolio } from '@/hooks/use-portfolio';
+import { useProjects } from '@/hooks/use-portfolio';
 import { Navigation } from '@/components/portfolio/Navigation';
 import { PostForm } from '@/components/admin/PostForm';
 import { Post } from '@/lib/types';
@@ -14,7 +14,7 @@ import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 
 export default function AdminPostsPage() {
-  const { data, addPost, updatePost, deletePost, isLoaded } = usePortfolio();
+  const { projects, addPost, updatePost, deletePost, isLoading } = useProjects();
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { toast } = useToast();
@@ -46,11 +46,7 @@ export default function AdminPostsPage() {
         ...postData,
       });
     } else {
-      addPost({
-        ...postData,
-        id: `project-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-      });
+      addPost(postData);
     }
     setIsFormOpen(false);
   };
@@ -70,7 +66,7 @@ export default function AdminPostsPage() {
           </Button>
         </div>
 
-        {data.posts.length === 0 ? (
+        {projects.length === 0 && !isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 bg-card rounded-2xl border-2 border-dashed">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
               <FolderCode className="w-8 h-8 text-muted-foreground" />
@@ -80,7 +76,7 @@ export default function AdminPostsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.posts.map((post) => (
+            {projects.map((post) => (
               <Card key={post.id} className="group overflow-hidden shadow-md">
                 <div className="relative aspect-video">
                   <Image

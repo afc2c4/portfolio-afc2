@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { usePortfolio } from '@/hooks/use-portfolio';
+import { useBlog } from '@/hooks/use-portfolio';
 import { Navigation } from '@/components/portfolio/Navigation';
 import { BlogForm } from '@/components/admin/BlogForm';
 import { BlogPost } from '@/lib/types';
@@ -16,7 +16,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function AdminBlogPage() {
-  const { data, addBlogPost, updateBlogPost, deleteBlogPost } = usePortfolio();
+  const { blogPosts, addBlogPost, updateBlogPost, deleteBlogPost } = useBlog();
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const { toast } = useToast();
@@ -42,11 +42,7 @@ export default function AdminBlogPage() {
     if (editingPost) {
       updateBlogPost({ ...editingPost, ...postData });
     } else {
-      addBlogPost({
-        ...postData,
-        id: `blog-${Date.now()}`,
-        createdAt: new Date().toISOString(),
-      });
+      addBlogPost(postData);
     }
     setIsFormOpen(false);
   };
@@ -66,7 +62,7 @@ export default function AdminBlogPage() {
           </Button>
         </div>
 
-        {data.blogPosts.length === 0 ? (
+        {blogPosts.length === 0 ? (
           <div className="text-center py-24 bg-card rounded-2xl border-2 border-dashed">
             <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">Nenhum artigo publicado ainda.</p>
@@ -74,7 +70,7 @@ export default function AdminBlogPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {data.blogPosts.map((post) => (
+            {blogPosts.map((post) => (
               <Card key={post.id} className="overflow-hidden">
                 <CardContent className="p-6">
                   <div className="flex flex-col md:flex-row gap-6 items-start">

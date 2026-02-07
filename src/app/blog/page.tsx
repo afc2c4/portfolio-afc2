@@ -1,7 +1,7 @@
 
 "use client";
 
-import { usePortfolio } from '@/hooks/use-portfolio';
+import { useBlog } from '@/hooks/use-portfolio';
 import { Navigation } from '@/components/portfolio/Navigation';
 import { BookOpen } from 'lucide-react';
 import Image from 'next/image';
@@ -11,8 +11,8 @@ import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
 
 export default function PublicBlogPage() {
-  const { data, isLoaded } = usePortfolio();
-  const publishedPosts = data.blogPosts.filter(p => p.published);
+  const { blogPosts, isLoading } = useBlog();
+  const publishedPosts = blogPosts.filter(p => p.published);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -24,7 +24,7 @@ export default function PublicBlogPage() {
           <p className="text-xl text-muted-foreground">Explorando o futuro do desenvolvimento de software.</p>
         </header>
 
-        {!isLoaded ? (
+        {isLoading ? (
           <div className="space-y-8">
             {[1, 2].map(i => <Skeleton key={i} className="h-64 w-full rounded-2xl" />)}
           </div>

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { usePortfolio } from '@/hooks/use-portfolio';
+import { useBlog } from '@/hooks/use-portfolio';
 import { Navigation } from '@/components/portfolio/Navigation';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -15,11 +15,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function BlogPostDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { data, isLoaded } = usePortfolio();
+  const { blogPosts, isLoading } = useBlog();
   
-  const post = data.blogPosts.find(p => p.id === id);
+  const post = blogPosts.find(p => p.id === id);
 
-  if (!isLoaded) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navigation />

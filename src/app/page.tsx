@@ -1,14 +1,17 @@
 
 "use client";
 
-import { usePortfolio } from '@/hooks/use-portfolio';
+import { useProfile, useProjects } from '@/hooks/use-portfolio';
 import { Navigation } from '@/components/portfolio/Navigation';
 import { ProfileHeader } from '@/components/portfolio/ProfileHeader';
 import { PostGrid } from '@/components/portfolio/PostGrid';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function HomePage() {
-  const { data, isLoaded } = usePortfolio();
+  const { profile, isLoading: isProfileLoading } = useProfile();
+  const { projects, isLoading: isProjectsLoading } = useProjects();
+  
+  const isLoaded = !isProfileLoading && !isProjectsLoading;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -30,13 +33,13 @@ export default function HomePage() {
           </div>
         ) : (
           <>
-            <ProfileHeader profile={data.profile} />
+            <ProfileHeader profile={profile} />
             <div className="mt-16">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="font-headline text-3xl font-bold">Projetos em Destaque</h2>
                 <div className="h-px bg-border flex-grow ml-8" />
               </div>
-              <PostGrid posts={data.posts} />
+              <PostGrid posts={projects} />
             </div>
           </>
         )}

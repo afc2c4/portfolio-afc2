@@ -4,60 +4,55 @@
 import { useMemo } from 'react';
 import { 
   useFirestore, 
-  useUser, 
-  useCollection, 
-  useDoc, 
-  useMemoFirebase 
+  useMemoFirebase,
+  useDoc,
+  useCollection
 } from '@/firebase';
 import { 
   collection, 
   doc, 
-  setDoc, 
-  addDoc, 
-  deleteDoc, 
-  updateDoc, 
   query, 
-  orderBy, 
-  limit 
+  orderBy 
 } from 'firebase/firestore';
-import { Profile, Post, BlogPost, PortfolioData } from '@/lib/types';
+import { Profile, Post, BlogPost } from '@/lib/types';
 import { INITIAL_DATA } from '@/lib/mock-data';
-import { setDocumentNonBlocking, addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { 
+  setDocumentNonBlocking, 
+  addDocumentNonBlocking, 
+  deleteDocumentNonBlocking, 
+  updateDocumentNonBlocking 
+} from '@/firebase/non-blocking-updates';
 
-// UID fixo para o portfólio (conforme definido nas security rules)
 const OWNER_ID = 'main-dev';
 
-export function usePortfolio() {
+export function useProfile() {
   const firestore = useFirestore();
-  const { user } = useUser();
-
-  // Referências Memoizadas
   const profileRef = useMemoFirebase(() => 
     doc(firestore, 'users', OWNER_ID, 'userProfile', 'current'), 
     [firestore]
   );
   
+  const { data: profile, isLoading } = useDoc<Profile>(profileRef);
+
+  const updateProfile = (profileData: Profile) => {
+    setDocumentNonBlocking(profileRef, profileData, { merge: true });
+  };
+
+  return { 
+    profile: profile || INITIAL_DATA.profile, 
+    isLoading,
+    updateProfile 
+  };
+}
+
+export function useProjects() {
+  const firestore = useFirestore();
   const projectsQuery = useMemoFirebase(() => 
     query(collection(firestore, 'users', OWNER_ID, 'projects'), orderBy('createdAt', 'desc')), 
     [firestore]
   );
 
-  const blogPostsQuery = useMemoFirebase(() => 
-    query(collection(firestore, 'users', OWNER_ID, 'blogPosts'), orderBy('createdAt', 'desc')), 
-    [firestore]
-  );
-
-  // Hooks de Dados do Firebase
-  const { data: profileData, isLoading: isProfileLoading } = useDoc<Profile>(profileRef);
-  const { data: projectsData, isLoading: isProjectsLoading } = useCollection<Post>(projectsQuery);
-  const { data: blogPostsData, isLoading: isBlogLoading } = useCollection<BlogPost>(blogPostsQuery);
-
-  const isLoaded = !isProfileLoading && !isProjectsLoading && !isBlogLoading;
-
-  // Funções de Mutação (Usando Non-Blocking Updates para melhor UX)
-  const updateProfile = (profile: Profile) => {
-    setDocumentNonBlocking(profileRef, profile, { merge: true });
-  };
+  const { data: projects, isLoading } = useCollection<Post>(projectsQuery);
 
   const addPost = (post: Omit<Post, 'id' | 'createdAt'>) => {
     const colRef = collection(firestore, 'users', OWNER_ID, 'projects');
@@ -77,6 +72,24 @@ export function usePortfolio() {
     deleteDocumentNonBlocking(docRef);
   };
 
+  return { 
+    projects: projects || [], 
+    isLoading, 
+    addPost, 
+    updatePost, 
+    deletePost 
+  };
+}
+
+export function useBlog() {
+  const firestore = useFirestore();
+  const blogPostsQuery = useMemoFirebase(() => 
+    query(collection(firestore, 'users', OWNER_ID, 'blogPosts'), orderBy('createdAt', 'desc')), 
+    [firestore]
+  );
+
+  const { data: blogPosts, isLoading } = useCollection<BlogPost>(blogPostsQuery);
+
   const addBlogPost = (blogPost: Omit<BlogPost, 'id' | 'createdAt'>) => {
     const colRef = collection(firestore, 'users', OWNER_ID, 'blogPosts');
     addDocumentNonBlocking(colRef, {
@@ -95,21 +108,11 @@ export function usePortfolio() {
     deleteDocumentNonBlocking(docRef);
   };
 
-  const data: PortfolioData = {
-    profile: profileData || INITIAL_DATA.profile,
-    posts: projectsData || [],
-    blogPosts: blogPostsData || []
-  };
-
-  return {
-    data,
-    updateProfile,
-    addPost,
-    updatePost,
-    deletePost,
-    addBlogPost,
-    updateBlogPost,
-    deleteBlogPost,
-    isLoaded
+  return { 
+    blogPosts: blogPosts || [], 
+    isLoading, 
+    addBlogPost, 
+    updateBlogPost, 
+    deleteBlogPost 
   };
 }
