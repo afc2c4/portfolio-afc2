@@ -21,7 +21,19 @@ export interface Post {
   createdAt: string;
 }
 
+export interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  excerpt: string;
+  coverUrl: string;
+  tags: string[];
+  createdAt: string;
+  published: boolean;
+}
+
 export interface PortfolioData {
   profile: Profile;
   posts: Post[];
+  blogPosts: BlogPost[];
 }

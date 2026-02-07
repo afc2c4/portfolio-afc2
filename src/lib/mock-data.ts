@@ -31,5 +31,17 @@ export const INITIAL_DATA: PortfolioData = {
       tags: ['React Native', 'Firebase', 'Recharts', 'TypeScript'],
       createdAt: new Date().toISOString()
     }
+  ],
+  blogPosts: [
+    {
+      id: 'blog-1',
+      title: 'Por que Next.js é a melhor escolha em 2024',
+      excerpt: 'Uma análise profunda sobre o ecossistema React e como o Next.js domina o desenvolvimento web moderno.',
+      content: 'O Next.js revolucionou a forma como construímos aplicações web...',
+      coverUrl: 'https://picsum.photos/seed/blog-next/1200/600',
+      tags: ['Next.js', 'React', 'Web Dev'],
+      createdAt: new Date().toISOString(),
+      published: true
+    }
   ]
 };

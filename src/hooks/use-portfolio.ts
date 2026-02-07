@@ -2,10 +2,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { PortfolioData, Profile, Post } from '@/lib/types';
+import { PortfolioData, Profile, Post, BlogPost } from '@/lib/types';
 import { INITIAL_DATA } from '@/lib/mock-data';
 
-const STORAGE_KEY = 'artfolio_data';
+const STORAGE_KEY = 'devfolio_data_v2';
 
 export function usePortfolio() {
   const [data, setData] = useState<PortfolioData>(INITIAL_DATA);
@@ -51,12 +51,33 @@ export function usePortfolio() {
     }));
   };
 
+  const addBlogPost = (blogPost: BlogPost) => {
+    setData(prev => ({ ...prev, blogPosts: [blogPost, ...prev.blogPosts] }));
+  };
+
+  const updateBlogPost = (updatedBlogPost: BlogPost) => {
+    setData(prev => ({
+      ...prev,
+      blogPosts: prev.blogPosts.map(p => p.id === updatedBlogPost.id ? updatedBlogPost : p)
+    }));
+  };
+
+  const deleteBlogPost = (blogPostId: string) => {
+    setData(prev => ({
+      ...prev,
+      blogPosts: prev.blogPosts.filter(p => p.id !== blogPostId)
+    }));
+  };
+
   return {
     data,
     updateProfile,
     addPost,
     updatePost,
     deletePost,
+    addBlogPost,
+    updateBlogPost,
+    deleteBlogPost,
     isLoaded
   };
 }

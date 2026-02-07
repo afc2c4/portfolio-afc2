@@ -4,15 +4,21 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutGrid, User, Settings, CodeXml } from 'lucide-react';
+import { LayoutGrid, User, Settings, CodeXml, BookOpen, ShieldCheck } from 'lucide-react';
 
 export function Navigation() {
   const pathname = usePathname();
+  const isAdminPath = pathname.startsWith('/admin');
 
-  const links = [
-    { href: '/', label: 'Portfólio', icon: LayoutGrid },
-    { href: '/admin/profile', label: 'Perfil', icon: User },
-    { href: '/admin/posts', label: 'Gerenciar Projetos', icon: Settings },
+  const publicLinks = [
+    { href: '/', label: 'Projetos', icon: LayoutGrid },
+    { href: '/blog', label: 'Blog', icon: BookOpen },
+  ];
+
+  const adminLinks = [
+    { href: '/admin/profile', label: 'Meu Perfil', icon: User },
+    { href: '/admin/posts', label: 'Projetos', icon: Settings },
+    { href: '/admin/blog', label: 'Blog', icon: BookOpen },
   ];
 
   return (
@@ -25,22 +31,37 @@ export function Navigation() {
           <span className="font-headline text-xl font-bold tracking-tight">DevFolio</span>
         </Link>
 
-        <div className="flex items-center gap-1 sm:gap-4">
-          {links.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors",
-                pathname === href 
-                  ? "bg-primary text-primary-foreground" 
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-            >
-              <Icon className="w-4 h-4" />
-              <span className="hidden sm:inline">{label}</span>
-            </Link>
-          ))}
+        <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center border-r pr-2 mr-2 gap-1 sm:gap-2">
+            {(isAdminPath ? adminLinks : publicLinks).map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors",
+                  pathname === href 
+                    ? "bg-primary text-primary-foreground" 
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="hidden sm:inline">{label}</span>
+              </Link>
+            ))}
+          </div>
+          
+          <Link
+            href={isAdminPath ? "/" : "/admin/posts"}
+            className={cn(
+              "px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-all",
+              isAdminPath 
+                ? "text-muted-foreground hover:text-foreground" 
+                : "bg-secondary text-secondary-foreground hover:opacity-90 shadow-sm"
+            )}
+          >
+            {isAdminPath ? <LayoutGrid className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+            <span className="hidden sm:inline">{isAdminPath ? "Sair do Painel" : "Painel Owner"}</span>
+          </Link>
         </div>
       </div>
     </nav>
