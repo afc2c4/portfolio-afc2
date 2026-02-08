@@ -49,7 +49,7 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
   const [newSkill, setNewSkill] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
+  const interactiveAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -61,6 +61,37 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
       });
     }
   }, [profile]);
+
+  // Hook para gerenciar o zoom via wheel (scroll)
+  useEffect(() => {
+    const element = interactiveAreaRef.current;
+    if (!element) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!formData.avatarUrl) return;
+      
+      // Impede o scroll da página enquanto ajusta a foto
+      e.preventDefault();
+
+      const zoomSpeed = 0.1;
+      const delta = e.deltaY > 0 ? -zoomSpeed : zoomSpeed;
+
+      setFormData(prev => {
+        const currentScale = prev.avatarSettings?.scale || 1;
+        const newScale = Math.min(4, Math.max(1, currentScale + delta));
+        return {
+          ...prev,
+          avatarSettings: {
+            ...(prev.avatarSettings || { scale: 1, x: 0, y: 0 }),
+            scale: newScale
+          }
+        };
+      });
+    };
+
+    element.addEventListener('wheel', handleWheel, { passive: false });
+    return () => element.removeEventListener('wheel', handleWheel);
+  }, [formData.avatarUrl]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,8 +166,7 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
     const deltaX = e.clientX - dragStart.current.x;
     const deltaY = e.clientY - dragStart.current.y;
 
-    // Converte delta de pixels para porcentagem relativa ao container (aprox 192px de largura)
-    const factor = 0.5; // Ajuste de sensibilidade
+    const factor = 0.5;
     const newX = Math.min(100, Math.max(-100, formData.avatarSettings.x + (deltaX * factor)));
     const newY = Math.min(100, Math.max(-100, formData.avatarSettings.y + (deltaY * factor)));
 
@@ -161,6 +191,7 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
             {/* Image Preview and Controls */}
             <div className="w-full lg:w-1/3 flex flex-col items-center space-y-6">
               <div 
+                ref={interactiveAreaRef}
                 className={cn(
                   "relative group cursor-grab active:cursor-grabbing select-none",
                   isDragging && "cursor-grabbing"
@@ -192,7 +223,7 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
                   {!isDragging && formData.avatarUrl && (
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white pointer-events-none">
                       <div className="bg-black/60 px-3 py-1 rounded-full text-[10px] font-bold uppercase flex items-center gap-2">
-                        <MousePointer2 className="w-3 h-3" /> Arraste para ajustar
+                        <MousePointer2 className="w-3 h-3" /> Arraste ou Scroll
                       </div>
                     </div>
                   )}
