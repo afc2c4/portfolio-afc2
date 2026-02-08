@@ -10,6 +10,11 @@ export interface Profile {
     website?: string;
   };
   avatarUrl?: string;
+  avatarSettings?: {
+    scale: number;
+    x: number;
+    y: number;
+  };
 }
 
 export interface Post {
