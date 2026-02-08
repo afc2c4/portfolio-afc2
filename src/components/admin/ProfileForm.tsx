@@ -10,9 +10,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import { X, Plus, Save, Upload, User, Move } from 'lucide-react';
+import { X, Plus, Save, Upload, User, Move, MousePointer2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 interface ProfileFormProps {
   profile: Profile | null;
@@ -40,6 +41,9 @@ const DEFAULT_PROFILE: Profile = {
 export function ProfileForm({ profile, onSave }: ProfileFormProps) {
   const [formData, setFormData] = useState<Profile>(profile || DEFAULT_PROFILE);
   const [newSkill, setNewSkill] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -78,7 +82,7 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
         setFormData({ 
           ...formData, 
           avatarUrl: reader.result as string,
-          avatarSettings: { scale: 1, x: 0, y: 0 } // Reset settings for new image
+          avatarSettings: { scale: 1, x: 0, y: 0 } 
         });
       };
       reader.readAsDataURL(file);
@@ -103,13 +107,41 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
   };
 
   const updateAvatarSetting = (key: 'scale' | 'x' | 'y', value: number) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       avatarSettings: {
-        ...(formData.avatarSettings || { scale: 1, x: 0, y: 0 }),
+        ...(prev.avatarSettings || { scale: 1, x: 0, y: 0 }),
         [key]: value
       }
-    });
+    }));
+  };
+
+  // Drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!formData.avatarUrl) return;
+    setIsDragging(true);
+    dragStart.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !formData.avatarSettings) return;
+
+    const deltaX = e.clientX - dragStart.current.x;
+    const deltaY = e.clientY - dragStart.current.y;
+
+    // Converte delta de pixels para porcentagem relativa ao container (aprox 192px de largura)
+    const factor = 0.5; // Ajuste de sensibilidade
+    const newX = Math.min(100, Math.max(-100, formData.avatarSettings.x + (deltaX * factor)));
+    const newY = Math.min(100, Math.max(-100, formData.avatarSettings.y + (deltaY * factor)));
+
+    updateAvatarSetting('x', newX);
+    updateAvatarSetting('y', newY);
+
+    dragStart.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
   };
 
   return (
@@ -122,10 +154,19 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
           <div className="flex flex-col lg:flex-row gap-12 items-start">
             {/* Image Preview and Controls */}
             <div className="w-full lg:w-1/3 flex flex-col items-center space-y-6">
-              <div className="relative group">
-                <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-primary/20 bg-muted flex items-center justify-center relative">
+              <div 
+                className={cn(
+                  "relative group cursor-grab active:cursor-grabbing select-none",
+                  isDragging && "cursor-grabbing"
+                )}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+              >
+                <div className="w-48 h-48 rounded-full overflow-hidden border-4 border-primary/20 bg-muted flex items-center justify-center relative shadow-inner">
                   {formData.avatarUrl ? (
-                    <div className="w-full h-full relative">
+                    <div className="w-full h-full relative pointer-events-none">
                       <Image 
                         src={formData.avatarUrl} 
                         alt="Preview" 
@@ -133,21 +174,32 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
                         className="object-cover"
                         style={{
                           transform: `scale(${formData.avatarSettings?.scale || 1}) translate(${formData.avatarSettings?.x || 0}%, ${formData.avatarSettings?.y || 0}%)`,
-                          transition: 'transform 0.1s ease-out'
+                          transition: isDragging ? 'none' : 'transform 0.1s ease-out'
                         }}
                       />
                     </div>
                   ) : (
                     <User className="w-16 h-16 text-muted-foreground" />
                   )}
-                  <div 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer text-white"
-                  >
-                    <Upload className="w-8 h-8 mb-1" />
-                    <span className="text-[10px] font-bold uppercase">Trocar Foto</span>
-                  </div>
+                  
+                  {/* Overlay instructions */}
+                  {!isDragging && formData.avatarUrl && (
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white pointer-events-none">
+                      <div className="bg-black/60 px-3 py-1 rounded-full text-[10px] font-bold uppercase flex items-center gap-2">
+                        <MousePointer2 className="w-3 h-3" /> Arraste para ajustar
+                      </div>
+                    </div>
+                  )}
                 </div>
+
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center cursor-pointer shadow-lg border-4 border-background hover:scale-110 transition-transform"
+                  title="Trocar Foto"
+                >
+                  <Upload className="w-4 h-4" />
+                </div>
+
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -159,8 +211,19 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
 
               {formData.avatarUrl && (
                 <div className="w-full space-y-6 bg-muted/30 p-4 rounded-xl border">
-                  <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
-                    <Move className="w-3 h-3" /> Ajustes da Foto
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                      <Move className="w-3 h-3" /> Ajustes Finos
+                    </div>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 text-[10px]"
+                      onClick={() => setFormData(prev => ({ ...prev, avatarSettings: { scale: 1, x: 0, y: 0 } }))}
+                    >
+                      Resetar
+                    </Button>
                   </div>
                   
                   <div className="space-y-3">
@@ -177,32 +240,34 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
                     />
                   </div>
 
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-xs">
-                      <Label>Posição X (Horizontal)</Label>
-                      <span className="text-primary">{formData.avatarSettings?.x || 0}%</span>
+                  <div className="hidden sm:block space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-xs">
+                        <Label>Posição Horizontal</Label>
+                        <span className="text-primary">{Math.round(formData.avatarSettings?.x || 0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[formData.avatarSettings?.x || 0]} 
+                        min={-100} 
+                        max={100} 
+                        step={1}
+                        onValueChange={([val]) => updateAvatarSetting('x', val)}
+                      />
                     </div>
-                    <Slider 
-                      value={[formData.avatarSettings?.x || 0]} 
-                      min={-100} 
-                      max={100} 
-                      step={1}
-                      onValueChange={([val]) => updateAvatarSetting('x', val)}
-                    />
-                  </div>
 
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-xs">
-                      <Label>Posição Y (Vertical)</Label>
-                      <span className="text-primary">{formData.avatarSettings?.y || 0}%</span>
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-xs">
+                        <Label>Posição Vertical</Label>
+                        <span className="text-primary">{Math.round(formData.avatarSettings?.y || 0)}%</span>
+                      </div>
+                      <Slider 
+                        value={[formData.avatarSettings?.y || 0]} 
+                        min={-100} 
+                        max={100} 
+                        step={1}
+                        onValueChange={([val]) => updateAvatarSetting('y', val)}
+                      />
                     </div>
-                    <Slider 
-                      value={[formData.avatarSettings?.y || 0]} 
-                      min={-100} 
-                      max={100} 
-                      step={1}
-                      onValueChange={([val]) => updateAvatarSetting('y', val)}
-                    />
                   </div>
                 </div>
               )}
