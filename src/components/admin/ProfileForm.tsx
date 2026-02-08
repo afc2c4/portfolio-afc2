@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import { X, Plus, Save, Upload, User, Move, MousePointer2, Settings2 } from 'lucide-react';
+import { X, Plus, Save, Upload, User, Move, MousePointer2, Settings2, ZoomIn } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -62,7 +62,7 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
     }
   }, [profile]);
 
-  // Hook para gerenciar o zoom via wheel (scroll)
+  // Gerencia o zoom via wheel (scroll)
   useEffect(() => {
     const element = interactiveAreaRef.current;
     if (!element) return;
@@ -153,7 +153,6 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
     }));
   };
 
-  // Drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!formData.avatarUrl) return;
     setIsDragging(true);
@@ -188,7 +187,7 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
         </CardHeader>
         <CardContent className="space-y-8">
           <div className="flex flex-col lg:flex-row gap-12 items-start">
-            {/* Image Preview and Controls */}
+            {/* Image Preview and Interactive Area */}
             <div className="w-full lg:w-1/3 flex flex-col items-center space-y-6">
               <div 
                 ref={interactiveAreaRef}
@@ -219,11 +218,14 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
                     <User className="w-16 h-16 text-muted-foreground" />
                   )}
                   
-                  {/* Overlay instructions */}
+                  {/* Overlay instructions on hover */}
                   {!isDragging && formData.avatarUrl && (
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white pointer-events-none">
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white pointer-events-none space-y-2">
                       <div className="bg-black/60 px-3 py-1 rounded-full text-[10px] font-bold uppercase flex items-center gap-2">
-                        <MousePointer2 className="w-3 h-3" /> Arraste ou Scroll
+                        <Move className="w-3 h-3" /> Arraste para mover
+                      </div>
+                      <div className="bg-black/60 px-3 py-1 rounded-full text-[10px] font-bold uppercase flex items-center gap-2">
+                        <ZoomIn className="w-3 h-3" /> Scroll para Zoom
                       </div>
                     </div>
                   )}
