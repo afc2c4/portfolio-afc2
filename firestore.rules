@@ -4,24 +4,20 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper: Verifica se é o dono autorizado (e-mail específico)
     function isOwner() {
       return request.auth != null && request.auth.token.email == 'afc2c4@gmail.com';
     }
 
-    // Perfil do Usuário
     match /users/{userId}/userProfile/{profileId} {
-      allow read: if true; // Público pode ver o perfil
+      allow read: if true;
       allow write: if isOwner();
     }
 
-    // Projetos
     match /users/{userId}/projects/{projectId} {
       allow read: if true;
       allow write: if isOwner();
     }
 
-    // Blog Posts
     match /users/{userId}/blogPosts/{postId} {
       allow read: if true;
       allow write: if isOwner();

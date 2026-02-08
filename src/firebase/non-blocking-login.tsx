@@ -6,11 +6,10 @@ import {
 } from 'firebase/auth';
 
 /** 
- * Inicia o login por e-mail/senha (não bloqueante).
- * O cadastro foi removido por segurança para garantir que apenas o dono acesse.
+ * Inicia o login por e-mail/senha.
+ * O cadastro é proibido, apenas o dono acessa.
  */
 export function initiateEmailSignIn(authInstance: Auth, email: string, password: string): void {
-  // CRITICAL: Chama signInWithEmailAndPassword diretamente. 
-  // O estado de autenticação é capturado pelo listener onAuthStateChanged no Provider.
+  // Apenas permite a tentativa de login. O Firebase Auth cuidará da validação.
   signInWithEmailAndPassword(authInstance, email, password);
 }
