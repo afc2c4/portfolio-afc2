@@ -21,9 +21,9 @@ Para enviar o código para o seu repositório [portfolio-afc2](https://github.co
    git add .
    ```
 
-4. **Crie o seu primeiro commit**:
+4. **Crie o seu commit**:
    ```bash
-   git commit -m "feat: estrutura completa do portfólio com firebase e painel admin"
+   git commit -m "feat: perfil interativo com ajuste de avatar (drag/scroll) e segurança restrita"
    ```
 
 5. **Envie para o GitHub**:
@@ -32,12 +32,14 @@ Para enviar o código para o seu repositório [portfolio-afc2](https://github.co
    ```
    *Nota: Se o comando acima der erro, tente `git push -u origin master`.*
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Tecnologias e Funcionalidades
 
 - **Frontend:** Next.js (App Router), React, Shadcn UI, Tailwind CSS.
 - **Backend:** Firebase Firestore (Banco de dados em tempo real).
-- **Segurança:** Firebase Authentication (Restrito ao administrador).
-- **IA:** Genkit para sugestão automática de tags técnicas.
+- **Segurança:** Firebase Authentication (Acesso restrito ao e-mail afc2c4@gmail.com).
+- **IA:** Genkit para sugestão automática de tags técnicas em projetos.
+- **Avatar Interativo:** Editor de imagem integrado para o perfil com suporte a upload, arraste (drag) e zoom via scroll do mouse.
+- **Performance:** Carregamento inteligente com Skeletons e separação de hooks de dados.
 
 ## 📦 Deploy Automático
 
