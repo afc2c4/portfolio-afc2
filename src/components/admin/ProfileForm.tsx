@@ -10,10 +10,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
-import { X, Plus, Save, Upload, User, Move, MousePointer2 } from 'lucide-react';
+import { X, Plus, Save, Upload, User, Move, MousePointer2, Settings2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface ProfileFormProps {
   profile: Profile | null;
@@ -210,66 +216,77 @@ export function ProfileForm({ profile, onSave }: ProfileFormProps) {
               </div>
 
               {formData.avatarUrl && (
-                <div className="w-full space-y-6 bg-muted/30 p-4 rounded-xl border">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                      <Move className="w-3 h-3" /> Ajustes Finos
-                    </div>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-6 text-[10px]"
-                      onClick={() => setFormData(prev => ({ ...prev, avatarSettings: { scale: 1, x: 0, y: 0 } }))}
-                    >
-                      Resetar
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-xs">
-                      <Label>Zoom</Label>
-                      <span className="text-primary">{(formData.avatarSettings?.scale || 1).toFixed(1)}x</span>
-                    </div>
-                    <Slider 
-                      value={[formData.avatarSettings?.scale || 1]} 
-                      min={1} 
-                      max={4} 
-                      step={0.1}
-                      onValueChange={([val]) => updateAvatarSetting('scale', val)}
-                    />
-                  </div>
-
-                  <div className="hidden sm:block space-y-4">
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-xs">
-                        <Label>Posição Horizontal</Label>
-                        <span className="text-primary">{Math.round(formData.avatarSettings?.x || 0)}%</span>
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="adjustments" className="border-none">
+                    <AccordionTrigger className="py-2 hover:no-underline">
+                      <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                        <Settings2 className="w-3.5 h-3.5" /> Ajustes de Precisão
                       </div>
-                      <Slider 
-                        value={[formData.avatarSettings?.x || 0]} 
-                        min={-100} 
-                        max={100} 
-                        step={1}
-                        onValueChange={([val]) => updateAvatarSetting('x', val)}
-                      />
-                    </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="w-full space-y-6 bg-muted/30 p-4 rounded-xl border mt-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                            <Move className="w-3 h-3" /> Sliders Manuais
+                          </div>
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 text-[10px]"
+                            onClick={() => setFormData(prev => ({ ...prev, avatarSettings: { scale: 1, x: 0, y: 0 } }))}
+                          >
+                            Resetar
+                          </Button>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="flex justify-between text-xs">
+                            <Label>Zoom</Label>
+                            <span className="text-primary">{(formData.avatarSettings?.scale || 1).toFixed(1)}x</span>
+                          </div>
+                          <Slider 
+                            value={[formData.avatarSettings?.scale || 1]} 
+                            min={1} 
+                            max={4} 
+                            step={0.1}
+                            onValueChange={([val]) => updateAvatarSetting('scale', val)}
+                          />
+                        </div>
 
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-xs">
-                        <Label>Posição Vertical</Label>
-                        <span className="text-primary">{Math.round(formData.avatarSettings?.y || 0)}%</span>
+                        <div className="space-y-4">
+                          <div className="space-y-3">
+                            <div className="flex justify-between text-xs">
+                              <Label>Posição Horizontal</Label>
+                              <span className="text-primary">{Math.round(formData.avatarSettings?.x || 0)}%</span>
+                            </div>
+                            <Slider 
+                              value={[formData.avatarSettings?.x || 0]} 
+                              min={-100} 
+                              max={100} 
+                              step={1}
+                              onValueChange={([val]) => updateAvatarSetting('x', val)}
+                            />
+                          </div>
+
+                          <div className="space-y-3">
+                            <div className="flex justify-between text-xs">
+                              <Label>Posição Vertical</Label>
+                              <span className="text-primary">{Math.round(formData.avatarSettings?.y || 0)}%</span>
+                            </div>
+                            <Slider 
+                              value={[formData.avatarSettings?.y || 0]} 
+                              min={-100} 
+                              max={100} 
+                              step={1}
+                              onValueChange={([val]) => updateAvatarSetting('y', val)}
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <Slider 
-                        value={[formData.avatarSettings?.y || 0]} 
-                        min={-100} 
-                        max={100} 
-                        step={1}
-                        onValueChange={([val]) => updateAvatarSetting('y', val)}
-                      />
-                    </div>
-                  </div>
-                </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               )}
             </div>
 
